@@ -5,6 +5,7 @@ In this repository, you will find the base code for the framework, documentation
 
 ## Change Log
 
+- <span style="color:red">**21-02-2025**: Corrected OR-Tools version to 9.11.</span>
 - **17-01-2025**: Base framework code, documentation and dataset `A`.
 
 ## Challenge Rules and Problem Description
@@ -36,7 +37,7 @@ Spanish and Portuguese versions of the challenge rules and problem description c
 - Maven
 - Python 3.8 or higher
 - CPLEX 22.11 (optional)
-- OR-Tools 4.11 (optional)
+- OR-Tools 9.11 (optional)
 
 ## Setup
 
