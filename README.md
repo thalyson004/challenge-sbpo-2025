@@ -5,7 +5,8 @@ In this repository, you will find the base code for the framework, documentation
 
 ## Change Log
 
-- <span style="color:red">**21-02-2025**: Corrected OR-Tools version to 9.11.</span>
+- **27-02-2025**: Updated the challenge rules to include specific details of the computer environment in which the challenge will be run.
+- **21-02-2025**: Corrected OR-Tools version to 9.11.
 - **17-01-2025**: Base framework code, documentation and dataset `A`.
 
 ## Challenge Rules and Problem Description
