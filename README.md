@@ -5,6 +5,7 @@ In this repository, you will find the base code for the framework, documentation
 
 ## Change Log
 
+- **05-03-2025**: Updated the challenge rules to clarify that, due to allowing a multithread environment, no seed for random generation will be provided.
 - **27-02-2025**: Updated the challenge rules to include specific details of the computer environment in which the challenge will be run.
 - **21-02-2025**: Corrected OR-Tools version to 9.11.
 - **17-01-2025**: Base framework code, documentation and dataset `A`.
