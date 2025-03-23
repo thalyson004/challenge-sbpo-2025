@@ -56,9 +56,9 @@ python checker.py <input_file> <solution_file>
 
 1. Compile and run benchmarks:
     ```sh
-    python run_challenge.py E:\Projetos\Doctorate\challenge-sbpo-2025 E:\Projetos\Doctorate\challenge-sbpo-2025\datasets\a output
+    python run_challenge.py E:\Projetos\Doctorate\challenge-sbpo-2025 E:\Projetos\Doctorate\challenge-sbpo-2025\datasets\a output\a
 
-    python run_challenge.py E:\Projetos\Doctorate\challenge-sbpo-2025 E:\Projetos\Doctorate\challenge-sbpo-2025\datasets\test output_test
+    python run_challenge.py E:\Projetos\Doctorate\challenge-sbpo-2025 E:\Projetos\Doctorate\challenge-sbpo-2025\datasets\small output\small
     ```
    
 2. Check solution viability:
