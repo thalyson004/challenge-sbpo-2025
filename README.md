@@ -56,17 +56,17 @@ python checker.py <input_file> <solution_file>
 
 1. Compile and run benchmarks:
     ```sh
-    python run_challenge.py src/main/java/org/sbpo2025/challenge src/main/resources/instances output
+    python run_challenge.py E:\Projetos\Doctorate\challenge-sbpo-2025 E:\Projetos\Doctorate\challenge-sbpo-2025\datasets\a output
     ```
    
 2. Check solution viability:
     ```sh
-    python checker.py src/main/resources/instances/instance_001.txt output/instance_001.txt
+    python checker.py E:/Projetos/Doctorate/challenge-sbpo-2025/datasets/a/instance_0001.txt E:/Projetos/Doctorate/challenge-sbpo-2025/output/instance_0001.txt
     ```
 
 ## Issues and MileStones
 
   - [Issues](https://github.com/thalyson004/challenge-sbpo-2025/issues)
-   - [Milestones] (https://github.com/thalyson004/challenge-sbpo-2025/milestones)
-     - [] Create a first simple solution
-     - 
+   - [Milestones](https://github.com/thalyson004/challenge-sbpo-2025/milestones)
+     - [ ] Run project
+     - [ ] Create a first simple solution and teste with sample instances
