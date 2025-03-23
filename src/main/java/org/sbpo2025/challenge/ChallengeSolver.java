@@ -3,6 +3,7 @@ package org.sbpo2025.challenge;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +19,8 @@ public class ChallengeSolver {
     protected int waveSizeUB;
 
     public ChallengeSolver(
-            List<Map<Integer, Integer>> orders, List<Map<Integer, Integer>> aisles, int nItems, int waveSizeLB, int waveSizeUB) {
+            List<Map<Integer, Integer>> orders, List<Map<Integer, Integer>> aisles, int nItems, int waveSizeLB,
+            int waveSizeUB) {
         this.orders = orders;
         this.aisles = aisles;
         this.nItems = nItems;
@@ -27,8 +29,16 @@ public class ChallengeSolver {
     }
 
     public ChallengeSolution solve(StopWatch stopWatch) {
-        // Implement your solution here
-        return null;
+        Set<Integer> ans_orders = new HashSet<Integer>();
+        Set<Integer> ans_aisles = new HashSet<Integer>();
+
+        System.out.printf("Numero de items: %d\n", nItems);
+        System.out.printf("waveSizeLB: %d, waveSizeUB: %d\n", waveSizeLB, waveSizeUB);
+
+        imprimirListaDeMapas("orders:", orders);
+        imprimirListaDeMapas("aisles:", aisles);
+
+        return new ChallengeSolution(ans_orders, ans_aisles);
     }
 
     /*
@@ -100,5 +110,19 @@ public class ChallengeSolver {
 
         // Objective function: total units picked / number of visited aisles
         return (double) totalUnitsPicked / numVisitedAisles;
+    }
+
+    public static void imprimirListaDeMapas(String title, List<Map<Integer, Integer>> listOfMaps) {
+        System.out.println(title);
+
+        for (Map<Integer, Integer> map : listOfMaps) {
+            for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+                int key = entry.getKey();
+                int value = entry.getValue();
+
+                System.out.print("(" + key + ", " + value + ") ");
+            }
+            System.out.println();
+        }
     }
 }

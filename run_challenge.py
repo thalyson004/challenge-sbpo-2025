@@ -10,7 +10,7 @@ OR_TOOLS_PATH = "$HOME/Documents/or-tools/build/lib/"
 USE_CPLEX = False
 USE_OR_TOOLS = False
 
-MAX_RUNNING_TIME = "599s"
+MAX_RUNNING_TIME = "605s"
 
 
 def compile_code(source_folder):
