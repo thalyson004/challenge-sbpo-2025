@@ -63,3 +63,10 @@ python checker.py <input_file> <solution_file>
     ```sh
     python checker.py src/main/resources/instances/instance_001.txt output/instance_001.txt
     ```
+
+## Issues and MileStones
+
+  - [Issues](https://github.com/thalyson004/challenge-sbpo-2025/issues)
+   - [Milestones] (https://github.com/thalyson004/challenge-sbpo-2025/milestones)
+     - [] Create a first simple solution
+     - 
