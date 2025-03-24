@@ -60,6 +60,9 @@ python checker.py <input_file> <solution_file>
 
     python run_challenge.py E:\Projetos\Doctorate\challenge-sbpo-2025 E:\Projetos\Doctorate\challenge-sbpo-2025\datasets\small output\small
     ```
+
+1. Run instance:
+    java -jar target/ChallengeSBPO2025-1.0.jar <inputFilePath> <outputFilePath>
    
 2. Check solution viability:
     ```sh

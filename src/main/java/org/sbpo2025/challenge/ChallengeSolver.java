@@ -2,7 +2,10 @@ package org.sbpo2025.challenge;
 
 import org.apache.commons.lang3.time.StopWatch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +24,142 @@ public class ChallengeSolver {
     public ChallengeSolver(
             List<Map<Integer, Integer>> orders, List<Map<Integer, Integer>> aisles, int nItems, int waveSizeLB,
             int waveSizeUB) {
+        this.nItems = nItems;
         this.orders = orders;
         this.aisles = aisles;
-        this.nItems = nItems;
         this.waveSizeLB = waveSizeLB;
         this.waveSizeUB = waveSizeUB;
     }
 
+    Set<Integer> complement_ids(Set<Integer> check, int mx_index) {
+        Set<Integer> complement = new HashSet<Integer>();
+
+        for (int i = 0; i < mx_index; i++)
+            complement.add(i);
+        for (int i : check)
+            complement.remove(i);
+
+        return complement;
+    }
+
+    Set<Integer> complementOrdersIds(Set<Integer> check) {
+        return complement_ids(check, orders.size());
+    }
+
+    List<Integer> complementOrdersIdsList(Set<Integer> check) {
+        return new ArrayList<Integer>(complement_ids(check, orders.size()));
+    }
+
+    Set<Integer> complementAislesIds(Set<Integer> check) {
+        return complement_ids(check, aisles.size());
+    }
+
+    // Add b values into a Map
+    void addMapValues(Map<Integer, Integer> a, Map<Integer, Integer> b) {
+        for (Map.Entry<Integer, Integer> entry : b.entrySet()) {
+            a.put(entry.getKey(), a.getOrDefault(entry.getKey(), 0) + entry.getValue());
+        }
+    }
+
+    int sumMapValues(Map<Integer, Integer> a) {
+        return a.values().stream().mapToInt(d -> d).sum();
+    }
+
+    boolean canGet(int order_id, Map<Integer, Integer> items_h, Map<Integer, Integer> items_n, int prev_total) {
+        if (Config.VERBOSE) {
+            System.out.printf("Trying add order %d\n", order_id);
+        }
+
+        int order_total = 0;
+        Map<Integer, Integer> order = orders.get(order_id);
+
+        boolean ok = true;
+        for (Map.Entry<Integer, Integer> entry : order.entrySet()) {
+            if (Config.VERBOSE) {
+                System.out.print("Check item: ");
+                System.out.println(entry);
+                System.out.print("Items N: ");
+                System.out.println(items_n);
+                System.out.print("Items H: ");
+                System.out.println(items_h);
+            }
+            if (items_n.getOrDefault(entry.getKey(), 0) + entry.getValue() > items_h.getOrDefault(entry.getKey(), 0)) {
+                ok = false;
+                break;
+            }
+
+            order_total += entry.getValue();
+        }
+
+        if (prev_total + order_total > waveSizeUB)
+            ok = false;
+
+        if (Config.VERBOSE) {
+            System.out.printf("Final flag %d\n", ok ? 1 : 0);
+        }
+
+        return ok;
+    }
+
+    public ChallengeSolution dumpSolution() {
+        Set<Integer> orders_ids = new HashSet<Integer>();
+        Set<Integer> aisles_ids = new HashSet<Integer>();
+        int total = 0;
+        Map<Integer, Integer> items_h = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> items_n = new HashMap<Integer, Integer>();
+
+        for (int i = 0; i < aisles.size(); i++) {
+            aisles_ids.add(i);
+
+            aisles.get(i);
+
+            addMapValues(items_h, aisles.get(i));
+        }
+
+        if (Config.VERBOSE) {
+            System.out.println("Will try add orders");
+        }
+
+        boolean again = true;
+        while (again) { // This dont have any sense, only if I try remove aisle
+            if (Config.VERBOSE) {
+                System.out.println("Starting a search...");
+                System.out.print("Previus selected:");
+                System.out.println(new ChallengeSolution(orders_ids, aisles_ids));
+                System.out.println("--------------------------------------");
+            }
+
+            again = false;
+
+            List<Integer> options = complementOrdersIdsList(orders_ids);
+            Collections.shuffle(options);
+            for (int option : options) {
+                if (canGet(option, items_h, items_n, total)) {
+
+                    addMapValues(items_n, orders.get(option));
+                    total += sumMapValues(orders.get(option));
+                    orders_ids.add(option);
+                    again = true;
+                }
+            }
+
+            // TODO: Try remove and add aisle
+        }
+
+        return new ChallengeSolution(orders_ids, aisles_ids);
+    }
+
+    public List<ChallengeSolution> CreateInitialPopulation() {
+        List<ChallengeSolution> population = new ArrayList<ChallengeSolution>();
+
+        population.add(dumpSolution());
+
+        return population;
+    }
+
     public ChallengeSolution solve(StopWatch stopWatch) {
+        System.out.println(Config.EXPANSION_SET_SELECTED);
+
         Set<Integer> ans_orders = new HashSet<Integer>();
         Set<Integer> ans_aisles = new HashSet<Integer>();
 
@@ -38,7 +169,11 @@ public class ChallengeSolver {
         imprimirListaDeMapas("orders:", orders);
         imprimirListaDeMapas("aisles:", aisles);
 
-        return new ChallengeSolution(ans_orders, ans_aisles);
+        List<ChallengeSolution> population = CreateInitialPopulation();
+
+        System.out.println(population.get(0));
+
+        return population.get(0);
     }
 
     /*

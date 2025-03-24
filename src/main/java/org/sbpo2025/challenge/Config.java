@@ -14,5 +14,8 @@ public class Config {
 
     static double CROSSOVER_RATE = 0.2;
 
+    static boolean VERBOSE = true;
+
     static boolean PRESERVE_BEST = false; // If true, preserve the best solution for the next generation
+
 }
