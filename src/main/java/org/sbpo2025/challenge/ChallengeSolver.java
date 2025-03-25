@@ -202,10 +202,11 @@ public class ChallengeSolver {
         return new ChallengeSolution(orders_ids, aisles_ids);
     }
 
-    public List<ChallengeSolution> CreateInitialPopulation() {
+    public List<ChallengeSolution> CreateInitialPopulation(StopWatch stopWatch) {
         List<ChallengeSolution> population = new ArrayList<ChallengeSolution>();
 
-        for (int i = 0; i < Config.POPULATION; i++) {
+        // for (int i = 0; i < Config.POPULATION; i++) {
+        while (!timeOver(stopWatch)) {
             population.add(dumpSolution());
         }
 
@@ -231,9 +232,6 @@ public class ChallengeSolver {
         if (Config.VERBOSE) {
             System.out.println(Config.EXPANSION_SET_SELECTED);
         }
-        Set<Integer> ans_orders = new HashSet<Integer>();
-        Set<Integer> ans_aisles = new HashSet<Integer>();
-
         if (Config.VERBOSE) {
             System.out.printf("Numero de items: %d\n", nItems);
             System.out.printf("waveSizeLB: %d, waveSizeUB: %d\n", waveSizeLB, waveSizeUB);
@@ -241,7 +239,7 @@ public class ChallengeSolver {
             imprimirListaDeMapas("orders:", orders);
             imprimirListaDeMapas("aisles:", aisles);
         }
-        List<ChallengeSolution> population = CreateInitialPopulation();
+        List<ChallengeSolution> population = CreateInitialPopulation(stopWatch);
 
         ChallengeSolution best = bestSolution(population);
 
@@ -259,6 +257,10 @@ public class ChallengeSolver {
         return Math.max(
                 TimeUnit.SECONDS.convert(MAX_RUNTIME - stopWatch.getTime(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS),
                 0);
+    }
+
+    protected boolean timeOver(StopWatch stopWatch) {
+        return stopWatch.getDuration().toMillis() > Config.MAX_DURATION;
     }
 
     protected boolean isSolutionFeasible(ChallengeSolution challengeSolution) {

@@ -53,7 +53,8 @@ public class Challenge {
         }
     }
 
-    private void readItemQuantityPairs(BufferedReader reader, int nLines, List<Map<Integer, Integer>> orders) throws IOException {
+    private void readItemQuantityPairs(BufferedReader reader, int nLines, List<Map<Integer, Integer>> orders)
+            throws IOException {
         String line;
         for (int orderIndex = 0; orderIndex < nLines; orderIndex++) {
             line = reader.readLine();
@@ -100,7 +101,7 @@ public class Challenge {
             }
 
             writer.close();
-            System.out.println("Output written to " + outputFilePath);
+            // System.out.println("Output written to " + outputFilePath);
 
         } catch (IOException e) {
             System.err.println("Error writing output to " + outputFilePath);
@@ -122,6 +123,8 @@ public class Challenge {
         var challengeSolver = new ChallengeSolver(
                 challenge.orders, challenge.aisles, challenge.nItems, challenge.waveSizeLB, challenge.waveSizeUB);
         ChallengeSolution challengeSolution = challengeSolver.solve(stopWatch);
+
+        System.out.println("Duration: " + (stopWatch.getDuration().toMillis() / 1000.0) + " seconds");
 
         challenge.writeOutput(challengeSolution, args[1]);
     }
