@@ -17,11 +17,14 @@ public class ChallengeSolver {
     private final long MAX_RUNTIME = 600000; // milliseconds; 10 minutes
 
     protected List<Map<Integer, Integer>> orders;
+    protected List<Integer> orders_size;
     protected List<Map<Integer, Integer>> aisles;
+    protected List<Integer> aisles_size;
     protected int nItems;
     protected int waveSizeLB;
     protected int waveSizeUB;
     protected Random r = new Random();
+    protected ChallengeSolution finalSolution;
 
     public ChallengeSolver(
             List<Map<Integer, Integer>> orders, List<Map<Integer, Integer>> aisles, int nItems, int waveSizeLB,
@@ -31,6 +34,14 @@ public class ChallengeSolver {
         this.aisles = aisles;
         this.waveSizeLB = waveSizeLB;
         this.waveSizeUB = waveSizeUB;
+        this.finalSolution = null;
+
+        this.orders_size = new ArrayList<Integer>();
+        for (Map<Integer, Integer> order : orders)
+            orders_size.add(sumMapValues(order));
+        this.aisles_size = new ArrayList<Integer>();
+        for (Map<Integer, Integer> aisle : aisles)
+            aisles_size.add(sumMapValues(aisle));
     }
 
     Set<Integer> complement_ids(Set<Integer> check, int mx_index) {
@@ -54,6 +65,14 @@ public class ChallengeSolver {
 
     Set<Integer> complementAislesIds(Set<Integer> check) {
         return complement_ids(check, aisles.size());
+    }
+
+    boolean checkHaveNeed(Map<Integer, Integer> items_h, Map<Integer, Integer> items_n) {
+        for (Map.Entry<Integer, Integer> item : items_n.entrySet()) {
+            if (item.getValue() < items_h.getOrDefault(item.getKey(), 0))
+                return false;
+        }
+        return true;
     }
 
     //
@@ -146,6 +165,40 @@ public class ChallengeSolver {
         return ok;
     }
 
+    public ChallengeSolution bestBySequence(List<Integer> seq_order, List<Integer> seq_aisle) {
+        ChallengeSolution solution = new ChallengeSolution(null, null);
+
+        Set<Integer> orders_ids = new HashSet<Integer>();
+        Set<Integer> aisles_ids = new HashSet<Integer>();
+        int total = 0;
+        Map<Integer, Integer> items_h = new HashMap<Integer, Integer>(); // Aisle
+        Map<Integer, Integer> items_n = new HashMap<Integer, Integer>(); // Orders
+
+        int id_seq_aisle = 0;
+        for (int id_seq_order = 0; id_seq_order < seq_order.size(); id_seq_order++) {
+            Map<Integer, Integer> order_cur = orders.get(seq_order.get(id_seq_order));
+            addMapValues(items_h, order_cur);
+            total += sumMapValues(order_cur);
+            if (total < waveSizeLB)
+                continue;
+            if (total > waveSizeUB)
+                break;
+
+            while (id_seq_aisle < seq_aisle.size() && !checkHaveNeed(items_h, items_n)) {
+                addMapValues(items_h, aisles.get(seq_aisle.get(id_seq_aisle)));
+                id_seq_aisle++;
+            }
+
+            if (checkHaveNeed(items_h, items_n)) {
+                if (solution == null || (computeObjectiveFunction(solution) < computeObjectiveFunction(solution))) {
+                    solution = new ChallengeSolution(orders_ids, aisles_ids);
+                }
+            }
+        }
+
+        return solution;
+    }
+
     public ChallengeSolution dumpSolution() {
         Set<Integer> orders_ids = new HashSet<Integer>();
         Set<Integer> aisles_ids = new HashSet<Integer>();
@@ -205,9 +258,29 @@ public class ChallengeSolver {
     public List<ChallengeSolution> CreateInitialPopulation(StopWatch stopWatch) {
         List<ChallengeSolution> population = new ArrayList<ChallengeSolution>();
 
-        // for (int i = 0; i < Config.POPULATION; i++) {
-        while (!timeOver(stopWatch)) {
+        List<Integer> seq_order = new ArrayList<Integer>();
+        List<Integer> seq_aisle = new ArrayList<Integer>();
+
+        for (int i = 0; i < orders.size(); i++)
+            seq_order.add(i);
+        for (int i = 0; i < aisles.size(); i++)
+            seq_aisle.add(i);
+
+        for (int i = 0; i < Config.POPULATION; i++) {
+            // while (!timeOver(stopWatch)) {
             population.add(dumpSolution());
+
+            Collections.shuffle(seq_order);
+            Collections.shuffle(seq_aisle);
+            population.add(bestBySequence(seq_order, seq_aisle));
+
+            Collections.sort(seq_aisle, (a, b) -> aisles.get(b).size() - aisles.get(a).size());
+            population.add(bestBySequence(seq_order, seq_aisle));
+            // System.out.println(seq_aisle);
+
+            Collections.sort(seq_aisle, (a, b) -> aisles_size.get(b) - aisles_size.get(a));
+            population.add(bestBySequence(seq_order, seq_aisle));
+            // System.out.println(seq_aisle);
         }
 
         return population;

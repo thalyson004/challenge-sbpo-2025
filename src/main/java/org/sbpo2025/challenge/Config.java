@@ -4,9 +4,9 @@ public class Config {
     static String[] OPERATIONS = { "ADD", "REMOVE", "SWAP" };
     static boolean[] OPERATIONS_ENABLED = { true, true, false };
     static double STOP_ADD_CHANCE = 0.05;
-    static double STOP_REMOVE_CHANCE = 0.01;
+    static double STOP_REMOVE_CHANCE = 0.00;
 
-    static int MAX_DURATION = 5 * 1000; // Mx duration in miliseconds
+    static int MAX_DURATION = 2 * 1000; // Mx duration in miliseconds
 
     static int MAX_UNIT = 2; // Mx of operations by mutation
 
