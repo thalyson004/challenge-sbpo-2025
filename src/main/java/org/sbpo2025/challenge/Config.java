@@ -3,7 +3,8 @@ package org.sbpo2025.challenge;
 public class Config {
     static String[] OPERATIONS = { "ADD", "REMOVE", "SWAP" };
     static boolean[] OPERATIONS_ENABLED = { true, true, false };
-    static double STOP_CHANCE = 0.05;
+    static double STOP_ADD_CHANCE = 0.05;
+    static double STOP_REMOVE_CHANCE = 0.01;
 
     static int MAX_UNIT = 2; // Mx of operations by mutation
 
@@ -15,7 +16,7 @@ public class Config {
 
     static double CROSSOVER_RATE = 0.2;
 
-    static boolean VERBOSE = true;
+    static boolean VERBOSE = false;
 
     static boolean PRESERVE_BEST = false; // If true, preserve the best solution for the next generation
 

@@ -70,11 +70,17 @@ public class ChallengeSolver {
         }
     }
 
+    void removeMapValues(Map<Integer, Integer> a, Map<Integer, Integer> b) {
+        for (Map.Entry<Integer, Integer> entry : b.entrySet()) {
+            a.put(entry.getKey(), a.getOrDefault(entry.getKey(), 0) - entry.getValue());
+        }
+    }
+
     int sumMapValues(Map<Integer, Integer> a) {
         return a.values().stream().mapToInt(d -> d).sum();
     }
 
-    boolean canGet(int order_id, Map<Integer, Integer> items_h, Map<Integer, Integer> items_n, int prev_total) {
+    boolean canGetOrder(int order_id, Map<Integer, Integer> items_h, Map<Integer, Integer> items_n, int prev_total) {
         if (Config.VERBOSE) {
             System.out.printf("Trying add order %d\n", order_id);
         }
@@ -110,6 +116,36 @@ public class ChallengeSolver {
         return ok;
     }
 
+    boolean canRemoveAisle(int aisle_id, Map<Integer, Integer> items_h, Map<Integer, Integer> items_n, int prev_total) {
+        if (Config.VERBOSE) {
+            System.out.printf("Trying remove aisle %d\n", aisle_id);
+        }
+        Map<Integer, Integer> aisle = aisles.get(aisle_id);
+
+        boolean ok = true;
+        for (Map.Entry<Integer, Integer> entry : aisle.entrySet()) {
+            if (Config.VERBOSE) {
+                System.out.print("Check item: ");
+                System.out.println(entry);
+                System.out.print("Items N: ");
+                System.out.println(items_n);
+                System.out.print("Items H: ");
+                System.out.println(items_h);
+            }
+
+            if (items_n.getOrDefault(entry.getKey(), 0) > items_h.getOrDefault(entry.getKey(), 0) - entry.getValue()) {
+                ok = false;
+                break;
+            }
+        }
+
+        if (Config.VERBOSE) {
+            System.out.printf("Final flag %d\n", ok ? 1 : 0);
+        }
+
+        return ok;
+    }
+
     public ChallengeSolution dumpSolution() {
         Set<Integer> orders_ids = new HashSet<Integer>();
         Set<Integer> aisles_ids = new HashSet<Integer>();
@@ -126,34 +162,41 @@ public class ChallengeSolver {
             System.out.println("Will try add orders");
         }
 
-        boolean again = true;
-        while (again) { // This dont have any sense, only if I try remove aisle
-            if (Config.VERBOSE) {
-                System.out.println("Starting a search...");
-                System.out.print("Previus selected:");
-                System.out.println(new ChallengeSolution(orders_ids, aisles_ids));
-                System.out.println("--------------------------------------");
+        if (Config.VERBOSE) {
+            System.out.println("Starting a search...");
+            System.out.print("Previus selected:");
+            System.out.println(new ChallengeSolution(orders_ids, aisles_ids));
+            System.out.println("--------------------------------------");
+        }
+
+        // Try add orders
+        List<Integer> options = complementOrdersIdsList(orders_ids);
+        Collections.shuffle(options);
+        for (int option : options) {
+            if (canGetOrder(option, items_h, items_n, total)) {
+                addMapValues(items_n, orders.get(option));
+                total += sumMapValues(orders.get(option));
+                orders_ids.add(option);
+
+                if (total >= waveSizeLB)
+                    if (r.nextDouble() < Config.STOP_ADD_CHANCE)
+                        break;
+
             }
+        }
 
-            again = false;
+        // Try remove aisle
+        options = new ArrayList<Integer>(aisles_ids);
+        Collections.shuffle(options);
+        for (int option : options) {
+            if (canRemoveAisle(option, items_h, items_n, total)) {
+                removeMapValues(items_h, aisles.get(option));
+                total -= sumMapValues(aisles.get(option));
+                aisles_ids.remove(option);
 
-            List<Integer> options = complementOrdersIdsList(orders_ids);
-            Collections.shuffle(options);
-            for (int option : options) {
-                if (canGet(option, items_h, items_n, total)) {
-                    addMapValues(items_n, orders.get(option));
-                    total += sumMapValues(orders.get(option));
-                    orders_ids.add(option);
-                    again = true;
-
-                    if (total >= waveSizeLB)
-                        if (r.nextDouble() < Config.STOP_CHANCE)
-                            break;
-
-                }
+                if (r.nextDouble() < Config.STOP_REMOVE_CHANCE)
+                    break;
             }
-
-            // TODO: Try remove and add aisle
         }
 
         return new ChallengeSolution(orders_ids, aisles_ids);
@@ -185,22 +228,26 @@ public class ChallengeSolver {
     }
 
     public ChallengeSolution solve(StopWatch stopWatch) {
-        System.out.println(Config.EXPANSION_SET_SELECTED);
-
+        if (Config.VERBOSE) {
+            System.out.println(Config.EXPANSION_SET_SELECTED);
+        }
         Set<Integer> ans_orders = new HashSet<Integer>();
         Set<Integer> ans_aisles = new HashSet<Integer>();
 
-        System.out.printf("Numero de items: %d\n", nItems);
-        System.out.printf("waveSizeLB: %d, waveSizeUB: %d\n", waveSizeLB, waveSizeUB);
+        if (Config.VERBOSE) {
+            System.out.printf("Numero de items: %d\n", nItems);
+            System.out.printf("waveSizeLB: %d, waveSizeUB: %d\n", waveSizeLB, waveSizeUB);
 
-        imprimirListaDeMapas("orders:", orders);
-        imprimirListaDeMapas("aisles:", aisles);
-
+            imprimirListaDeMapas("orders:", orders);
+            imprimirListaDeMapas("aisles:", aisles);
+        }
         List<ChallengeSolution> population = CreateInitialPopulation();
 
         ChallengeSolution best = bestSolution(population);
 
-        System.out.println(best);
+        if (Config.VERBOSE) {
+            System.out.println(best);
+        }
 
         return best;
     }
