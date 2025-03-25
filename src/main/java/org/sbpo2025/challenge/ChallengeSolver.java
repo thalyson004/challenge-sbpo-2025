@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,7 @@ public class ChallengeSolver {
     protected int nItems;
     protected int waveSizeLB;
     protected int waveSizeUB;
+    protected Random r = new Random();
 
     public ChallengeSolver(
             List<Map<Integer, Integer>> orders, List<Map<Integer, Integer>> aisles, int nItems, int waveSizeLB,
@@ -54,7 +56,14 @@ public class ChallengeSolver {
         return complement_ids(check, aisles.size());
     }
 
-    // Add b values into a Map
+    //
+    /**
+     * Add b values into the map a
+     * 
+     * @param a A Map<Integer, Integer>
+     * @param b A Map<Integer, Integer>
+     * @return nothing
+     */
     void addMapValues(Map<Integer, Integer> a, Map<Integer, Integer> b) {
         for (Map.Entry<Integer, Integer> entry : b.entrySet()) {
             a.put(entry.getKey(), a.getOrDefault(entry.getKey(), 0) + entry.getValue());
@@ -105,14 +114,11 @@ public class ChallengeSolver {
         Set<Integer> orders_ids = new HashSet<Integer>();
         Set<Integer> aisles_ids = new HashSet<Integer>();
         int total = 0;
-        Map<Integer, Integer> items_h = new HashMap<Integer, Integer>();
-        Map<Integer, Integer> items_n = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> items_h = new HashMap<Integer, Integer>(); // Aisle
+        Map<Integer, Integer> items_n = new HashMap<Integer, Integer>(); // Orders
 
         for (int i = 0; i < aisles.size(); i++) {
             aisles_ids.add(i);
-
-            aisles.get(i);
-
             addMapValues(items_h, aisles.get(i));
         }
 
@@ -135,11 +141,15 @@ public class ChallengeSolver {
             Collections.shuffle(options);
             for (int option : options) {
                 if (canGet(option, items_h, items_n, total)) {
-
                     addMapValues(items_n, orders.get(option));
                     total += sumMapValues(orders.get(option));
                     orders_ids.add(option);
                     again = true;
+
+                    if (total >= waveSizeLB)
+                        if (r.nextDouble() < Config.STOP_CHANCE)
+                            break;
+
                 }
             }
 
@@ -152,9 +162,26 @@ public class ChallengeSolver {
     public List<ChallengeSolution> CreateInitialPopulation() {
         List<ChallengeSolution> population = new ArrayList<ChallengeSolution>();
 
-        population.add(dumpSolution());
+        for (int i = 0; i < Config.POPULATION; i++) {
+            population.add(dumpSolution());
+        }
 
         return population;
+    }
+
+    public ChallengeSolution bestSolution(List<ChallengeSolution> population) {
+        ChallengeSolution best = population.get(0);
+        double best_objective = computeObjectiveFunction(best);
+
+        for (int i = 1; i < population.size(); i++) {
+            ChallengeSolution solution = population.get(i);
+            if (isSolutionFeasible(solution) && best_objective < computeObjectiveFunction(solution)) {
+                best = solution;
+                best_objective = computeObjectiveFunction(solution);
+            }
+        }
+
+        return best;
     }
 
     public ChallengeSolution solve(StopWatch stopWatch) {
@@ -171,9 +198,11 @@ public class ChallengeSolver {
 
         List<ChallengeSolution> population = CreateInitialPopulation();
 
-        System.out.println(population.get(0));
+        ChallengeSolution best = bestSolution(population);
 
-        return population.get(0);
+        System.out.println(best);
+
+        return best;
     }
 
     /*

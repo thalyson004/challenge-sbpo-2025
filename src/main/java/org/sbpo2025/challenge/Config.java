@@ -3,6 +3,7 @@ package org.sbpo2025.challenge;
 public class Config {
     static String[] OPERATIONS = { "ADD", "REMOVE", "SWAP" };
     static boolean[] OPERATIONS_ENABLED = { true, true, false };
+    static double STOP_CHANCE = 0.05;
 
     static int MAX_UNIT = 2; // Mx of operations by mutation
 
